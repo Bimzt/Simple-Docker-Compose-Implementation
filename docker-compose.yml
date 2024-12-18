@@ -30,10 +30,29 @@ services:
       MYSQL_DATABASE: userdb
       MYSQL_USER: user
       MYSQL_PASSWORD: userpassword
+    annotations:
+      com.example.foo: bar
     volumes:
       - db_data:/var/lib/mysql 
     networks:
       - app_network
+    restart: "no"
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin_container
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db_mysql_container
+      PMA_PORT: 3306
+    annotations:
+      com.example.foo: bar
+    depends_on:
+      - mysql
+    networks:
+      - app_network
+    restart: "no"
 
   db_postgres:
     image: postgres:latest
@@ -42,6 +61,9 @@ services:
       POSTGRES_PASSWORD: example
     ports:
       - "5432:5432"
+    annotations:
+      com.example.foo: bar
+    dns: 8.8.8.8
     volumes:
       - db_postgres_data:/var/lib/postgresql/data
     networks:
@@ -52,18 +74,28 @@ services:
     container_name: redis_container
     ports:
       - "6379:6379"
+    annotations:
+      com.example.foo: bar
+    dns: 8.8.8.8
     networks:
       - webnet
+    restart: "no"
+    cap_add:
+      - ALL
 
   mongodb:
     image: mongo:latest
     container_name: mongo_db_container
     ports:
       - "27017:27017"
+    annotations:
+      com.example.foo: bar
+    dns: 8.8.8.8
     volumes:
       - mongodb_data:/data/db
     networks:
       - webnet
+    restart: "no"
 
   rabbitmq:
     image: rabbitmq:latest
@@ -71,8 +103,14 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    annotations:
+      com.example.foo: bar
+    dns: 8.8.8.8
     networks:
       - webnet
+    restart: "no"
+    cap_add:
+      - ALL
 
   elasticsearch:
     image: elasticsearch:7.17.0
@@ -82,8 +120,12 @@ services:
     ports:
       - "9200:9200"
       - "9300:9300"
+    annotations:
+      com.example.foo: bar
+    dns: 8.8.8.8
     networks:
       - webnet
+    restart: "no"
 
   neo4j:
     image: neo4j:latest
@@ -93,6 +135,9 @@ services:
     ports:
       - "7474:7474"
       - "7687:7687"
+    annotations:
+      com.example.foo: bar
+    dns: 8.8.8.8
     volumes:
       - neo4j_data:/data
       - neo4j_logs:/logs
@@ -104,10 +149,14 @@ services:
     container_name: maria_db_container
     annotations:
       com.example.foo: bar
+    dns: 8.8.8.8
     ports:
       - "3307:3307"
     volumes:
       - mariadb_data:/var/lib/mysql
+    restart: "no"
+    cap_add:
+      - ALL
 
   memcached:
     image: memcached:latest
@@ -117,21 +166,13 @@ services:
       - dc2.example.com
     ports:
       - "11211:11211"
+    annotations:
+      com.example.foo: bar
     networks:
       - app_network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    container_name: phpmyadmin_container
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: mysql_container
-      PMA_PORT: 3306
-    depends_on:
-      - mysql
-    networks:
-      - app_network
+    restart: "no"
+    cap_add:
+      - ALL
 
 networks:
   webnet:
